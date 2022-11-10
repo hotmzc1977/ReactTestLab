@@ -444,7 +444,17 @@ export default function OCR(props: Props) {
     useEffect(() => {
         initialize()
         return () => {
-            terminate()
+            setStream(prevStream => {
+                prevStream && prevStream.getTracks().forEach((track: any) => {
+                    track.stop();
+                });
+                if (videoRef.current) videoRef.current.srcObject = null;
+                return undefined
+            })
+            setWorker((prevWorker) => {
+                prevWorker && prevWorker.terminate()
+                return undefined
+            })
         }
     }, [])
 
@@ -610,29 +620,29 @@ export default function OCR(props: Props) {
                 </Fab>
             }
 
-            <Fab aria-label="add" size="small" style={{
+            {scenario !== "camera" && <Fab aria-label="add" size="small" style={{
                 position: 'absolute',
-                bottom: 5,
+                bottom: 50,
                 right: 5
             }} onClick={onDeleteClicked}>
                 <DeleteForeverIcon />
-            </Fab>
+            </Fab>}
 
             <Fab aria-label="upload" size="small" style={{
                 position: 'absolute',
-                bottom: 50,
+                bottom: 5,
                 right: 5
             }} onClick={onFileUploadClick} >
                 <FileUploadIcon />
             </Fab>
 
-            <Fab onClick={() => setScenario("crop")} size="small" style={{
+            {scenario === "recognize" && <Fab onClick={() => { setScenario("crop"); setResult(undefined) }} size="small" style={{
                 position: 'absolute',
                 bottom: 95,
                 right: 5
             }}>
                 <DeselectIcon />
-            </Fab>
+            </Fab>}
 
             <Fab aria-label="Take Photo" size="large" onClick={onOCRClicked} style={{
                 position: 'absolute',
@@ -642,20 +652,20 @@ export default function OCR(props: Props) {
                 <PhotoCameraIcon fontSize="large" />
             </Fab>
 
-            <IconButton aria-label="Zoom In" onClick={zoomIn} size="large" style={{
+            {scenario === "recognize" && <IconButton aria-label="Zoom In" onClick={zoomIn} size="large" style={{
                 position: 'absolute',
                 bottom: 0,
                 right: OCRSize.width / 2 - 100,
             }} >
                 <ZoomInIcon fontSize="large" />
-            </IconButton>
-            <IconButton aria-label="Zoom Out" onClick={zoomOut} size="large" disabled style={{
+            </IconButton>}
+            {scenario === "recognize" && <IconButton aria-label="Zoom Out" onClick={zoomOut} size="large" style={{
                 position: 'absolute',
                 bottom: 0,
                 left: OCRSize.width / 2 - 100,
             }}>
                 <ZoomOutIcon fontSize="large" />
-            </IconButton>
+            </IconButton>}
 
             {/* <Fab aria-label="Crop" onClick={() => setScenario("crop")} size="small" style={{
                 position: 'absolute',
