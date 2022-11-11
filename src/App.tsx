@@ -23,6 +23,7 @@ import OCR from "./ocr/OCR";
 import CropperTest from "./ocr/CropperTest";
 import OCR3 from "./ocr/OCR3";
 import Tesseract from "tesseract.js";
+import OCR4 from "./ocr/OCR4";
 
 const App = () => {
 
@@ -38,7 +39,7 @@ const App = () => {
   };
 
   const onExamineResult = async (result: Tesseract.RecognizeResult) => {
-    const l = result.data.lines.find(line => line.text.startsWith("Id:"))
+    const l = result.data.lines.find(line => line.text.startsWith("Serial Number:"))
     if (l) {
       setText(l.text)
       return true
@@ -93,6 +94,8 @@ const App = () => {
           </div>
 
         </Route>
+        <Route path="/ocr3" component={OCR3} />
+        <Route path="/ocr4" component={OCR4} />
         <DndProvider backend={HTML5Backend}>
           <Route path="/aggrid" component={TheGrid} />
         </DndProvider>

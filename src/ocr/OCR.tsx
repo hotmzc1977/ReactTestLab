@@ -81,8 +81,8 @@ export default function OCR(props: Props) {
     const processingRef = useRef<boolean>(false)
     const intervalRef = useRef<any>(null)
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const [stream, setStream] = useState<MediaStream>()
-    const [worker, setWorker] = useState<Tesseract.Worker>()
+    const streamRef = useRef<MediaStream>()
+    const workerRef = useRef<Tesseract.Worker>()
 
 
     useEffect(() => {
@@ -124,9 +124,9 @@ export default function OCR(props: Props) {
         const { top, left, height, width } = cropArea;
         //console.log(videoRef.current.videoHeight, videoRef.current.videoWidth, videoRef.current.height, videoRef.current.width)
         if (ctx) {
-            ctx.clearRect(0, 0, videoSize!.width, videoSize!.height);
-            ctx.fillStyle = "rgba(255, 255, 255,1)";
-            ctx.fillRect(0, 0, videoSize!.width, videoSize!.height);
+            // ctx.clearRect(0, 0, videoSize!.width, videoSize!.height);
+            // ctx.fillStyle = "rgba(255, 255, 255,1)";
+            // ctx.fillRect(0, 0, videoSize!.width, videoSize!.height);
             ctx!.drawImage(
                 videoRef.current,
                 left,
@@ -138,7 +138,7 @@ export default function OCR(props: Props) {
                 width,
                 height
             );
-            let newimgUri = previewCanvasRef.current.toDataURL("image/jpeg").toString();
+            let newimgUri = previewCanvasRef.current.toDataURL().toString();
             return newimgUri;
         }
     }
@@ -222,7 +222,7 @@ export default function OCR(props: Props) {
     }
 
     const processImage = async (image: string): Promise<RecognizeImageResult> => {
-        return worker!.recognize(image)
+        return workerRef.current!.recognize(image)
             .then(result => {
                 console.log("result", result);
                 setProgress(1);
@@ -374,7 +374,7 @@ export default function OCR(props: Props) {
                 //     })
                 //     setVideoZoom(videoRef.current!.offsetHeight / videoRef.current!.videoHeight)
                 // }
-                setStream(stream)
+                streamRef.current = stream
                 videoRef.current.play().then(() => {
                     setVideoSize({
                         width: videoRef.current!.videoWidth,
@@ -397,10 +397,9 @@ export default function OCR(props: Props) {
     }
 
     const stopVideo = () => {
-        stream && stream.getTracks().forEach((track: any) => {
+        streamRef && streamRef.current && streamRef.current.getTracks().forEach((track: any) => {
             track.stop();
         })
-        setStream(undefined)
         console.log("video stop")
     }
 
@@ -410,51 +409,38 @@ export default function OCR(props: Props) {
     }, [videoSize])
 
     const initialize = async () => {
-        try {
-            const newWorker = Tesseract.createWorker({
-                logger: m => {
-                    console.log(m);
-                    //setProcessStatus(m);
-                    //setProgressStatus(m.status);
-                    if (m.status === "recognizing text") {
-                        setProgress(m.progress < 0.02 ? 0.02 : m.progress);
-                    }
-                    else {
-                        setProgress(0.01);
-                    }
-                },
-            });
-            await newWorker.load();
-            await newWorker.loadLanguage(language);
-            await newWorker.initialize(language);
-            setWorker(newWorker)
-            playVideo()
-            setScenario("camera")
-        }
-        catch {
-            setWorker(undefined)
-        }
+
+        workerRef.current = Tesseract.createWorker({
+            logger: m => {
+                console.log(m);
+                //setProcessStatus(m);
+                //setProgressStatus(m.status);
+                if (m.status === "recognizing text") {
+                    setProgress(m.progress < 0.02 ? 0.02 : m.progress);
+                }
+                else {
+                    setProgress(0.01);
+                }
+            },
+        });
+        await workerRef.current.load();
+        await workerRef.current.loadLanguage(language);
+        await workerRef.current.initialize(language);
+        playVideo()
+        setScenario("camera")
+
     }
 
     const terminate = async () => {
-        worker && await worker.terminate()
-        stopVideo();
+        workerRef.current && await workerRef.current.terminate()
+
     }
 
     useEffect(() => {
         initialize()
         return () => {
-            setStream(prevStream => {
-                prevStream && prevStream.getTracks().forEach((track: any) => {
-                    track.stop();
-                });
-                if (videoRef.current) videoRef.current.srcObject = null;
-                return undefined
-            })
-            setWorker((prevWorker) => {
-                prevWorker && prevWorker.terminate()
-                return undefined
-            })
+            stopVideo();
+            terminate();
         }
     }, [])
 

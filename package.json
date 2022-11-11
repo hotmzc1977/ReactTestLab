@@ -2,9 +2,10 @@
   "title": "Material demo",
   "scripts": {
     "start": "set HTTPS=true&&react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build -s ASSERTIONS=1",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "node ./node_modules/http-server/bin/http-server build -S"
   },
   "main": "index.tsx",
   "description": "https://github.com/mui-org/material-ui/blob/master/docs/src/pages/components/autocomplete/CountrySelect.tsx",
@@ -28,6 +29,7 @@
     "ag-grid-react": "26.0.0",
     "axios": "0.21.1",
     "d3": "^7.6.1",
+    "http-server": "^14.1.1",
     "json-loader": "0.5.7",
     "lodash": "^4.17.21",
     "react": "17.0.2",
@@ -41,7 +43,7 @@
     "react-router-dom": "5.2.0",
     "react-webcam": "^6.0.1",
     "tesseract-with-html5-camera": "^0.1.7",
-    "tesseract.js": "^2.1.5"
+    "tesseract.js": "^2.0.0-beta.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.4",
@@ -53,6 +55,7 @@
     "@types/node": "^12.12.54",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
+    "@types/react-html5-camera-photo": "^1.5.1",
     "@types/react-image-gallery": "^1.0.4",
     "@types/react-router-dom": "^5.1.5",
     "react-scripts": "^4.0.1",
