@@ -17,7 +17,7 @@ import FormatShapesIcon from '@mui/icons-material/FormatShapes';
 import LineStyleIcon from '@mui/icons-material/LineStyle';
 import HdrAutoIcon from '@mui/icons-material/HdrAuto';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
-import { maxWidth } from "@mui/system";
+import CameraPhoto, { FACING_MODES, IMAGE_TYPES } from 'jslib-html5-camera-photo';
 
 type Position = {
     top: number,
